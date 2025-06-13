@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\EncryptCookies::class,
        
         ]);
+       
         $middleware->statefulApi();
 
         $middleware->api([
@@ -33,13 +34,15 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // Enregistrement du middleware personnalisé
-        $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
-           'auth.sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,        ]);
-
-        // Vous pouvez aussi ajouter des middlewares à des groupes spécifiques
-        // $middleware->appendToGroup('web', \App\Http\Middleware\CustomWebMiddleware::class);
-    })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
+    $middleware->alias([
+        'role' => \App\Http\Middleware\CheckRole::class,
+        'auth.sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,     
+        'admin' => \App\Http\Middleware\EnsureIsAdmin::class, // <-- Ajoute cette ligne
+    ]);
+       
+    // Vous pouvez aussi ajouter des middlewares à des groupes spécifiques
+    // $middleware->appendToGroup('web', \App\Http\Middleware\CustomWebMiddleware::class);
+})
+->withExceptions(function (Exceptions $exceptions) {
+    //
+})->create();

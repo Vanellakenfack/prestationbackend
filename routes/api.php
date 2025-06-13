@@ -3,11 +3,13 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BookingController;
 
 // Auth
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-
+Route::post('admin/login', [AdminController::class, 'login']);
 // Routes protégées
 Route::middleware('auth:sanctum')->group(function () {
     // Profil utilisateur
@@ -32,9 +34,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user()->load(['prestataire', 'client']);
     });
-
-    // Admin routes (si besoin)
-    Route::middleware('role:admin')->group(function () {
-        // Route admin ici
+      // Réservations
+    Route::post('/bookings', [BookingController::class, 'store']);
+    Route::get('/prestataires/{prestataire}/disponibilites', [BookingController::class, 'getDisponibilites']);
+    //Évaluations
+    Route::post('/services/{service}/reviews', [ReviewController::class, 'store']);
+    // Admin routes (protégées)
+    Route::middleware(['admin'])->prefix('admin')->group(function () {
+        Route::get('/users', [AdminController::class, 'listUsers']);
+        Route::post('/users', [AdminController::class, 'createUser']);
+        Route::put('/users/{user}', [AdminController::class, 'updateUser']);
+        Route::post('create', [AdminController::class, 'createAdmin']);
+        Route::get('dashboard', [AdminController::class, 'dashboard']);
+        Route::get('/services', [AdminController::class, 'listServices']);
+        Route::post('/services/{service}/moderate', [AdminController::class, 'moderateService']);
+            Route::get('/stats', [AdminController::class, 'stats']);
+        });
     });
-});

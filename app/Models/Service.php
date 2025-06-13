@@ -44,4 +44,20 @@ class Service extends Model
     {
         return "{$this->prix} fc/" . $this->unite_prix;
     }
+    // app/Models/Service.php
+public function bookings()
+{
+    return $this->hasMany(Booking::class);
+}
+
+// app/Models/Service.php
+public function reviews()
+{
+    return $this->hasMany(Review::class);
+}
+
+public function averageRating()
+{
+    return $this->reviews()->avg('rating');
+}
 }
