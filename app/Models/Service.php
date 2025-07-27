@@ -13,7 +13,7 @@ class Service extends Model
         'prestataire_id',
         'titre',
         'description',
-        'categorie',
+         'categorie_id',
         'prix',
         'unite_prix',
         'localisation',
@@ -59,5 +59,9 @@ public function reviews()
 public function averageRating()
 {
     return $this->reviews()->avg('rating');
+}
+public function category()
+{
+    return $this->belongsTo(Category::class);
 }
 }

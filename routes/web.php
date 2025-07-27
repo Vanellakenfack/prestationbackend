@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+// routes/web.php
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->noContent();
 });

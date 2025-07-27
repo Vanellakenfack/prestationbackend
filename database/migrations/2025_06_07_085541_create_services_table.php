@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('prestataire_id')->constrained('users')->onDelete('cascade');
             $table->string('titre');
             $table->text('description');
-            $table->string('categorie');
+$table->foreignId('categorie_id')->constrained('categories')->onDelete('restrict');
             $table->decimal('prix', 10, 2);
             $table->string('unite_prix')->default('heure'); // heure, forfait, etc.
             $table->string('localisation');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('video')->nullable(); // Lien vers une vidéo de présentation
             $table->timestamps();
             
-            $table->index('categorie');
+            
             $table->index('localisation');
         });
     }

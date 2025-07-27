@@ -6,52 +6,75 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use Illuminate\Support\Facades\Log; // Ajoutez cette ligne d'importation
-
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
         $validated = $request->validate([
+            'nom' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
-            'type' => 'required|in:client,prestataire'
+            'type' => 'required|in:client,prestataire',
+            'telephone' => 'required|string|max:20',
+            'ville' => 'required|string|max:255'
         ]);
 
         $user = User::create([
+            'nom' => $validated['nom'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
-            'type' => $validated['type']
+            'type' => $validated['type'],
+            'telephone' => $validated['telephone'],
+            'ville' => $validated['ville']
         ]);
 
         if ($validated['type'] === 'prestataire') {
-            $user->prestataire()->create($request->only(['metier', 'bio']));
+            $request->validate([
+                'metier' => 'required|string|max:255',
+                'bio' => 'nullable|string'
+            ]);
+            
+            $user->prestataire()->create([
+                'metier' => $request->metier,
+                'bio' => $request->bio
+            ]);
         } else {
             $user->client()->create();
         }
 
-        return response()->json(['user' => $user], 201);
+        return response()->json([
+            'status' => 'success',
+            'user' => $user->load(['client', 'prestataire'])
+        ], 201);
     }
 
     public function login(Request $request)
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (!Auth::attempt($credentials)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid credentials'
+            ], 401);
         }
 
-        $user = User::where('email', $request->email)->first();
+        $user = $request->user();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
+            'status' => 'success',
             'token' => $token,
-            'user' => $user
+            'user' => $user->load(['client', 'prestataire'])
         ]);
     }
 
-   // app/Http/Controllers/Auth/AuthController.php
-// app/Http/Controllers/Auth/AuthController.php
-public function logout(Request $request)
+    public function logout(Request $request)
     {
         try {
             $user = $request->user();

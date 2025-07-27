@@ -10,4 +10,16 @@ class Prestataire extends Model {
     public function user() {
         return $this->belongsTo(User::class);
     }
+    public function disponibilites(): HasMany
+    {
+        return $this->hasMany(Disponibilite::class);
+    }
+
+    public function horairesParDefaut()
+    {
+        return [
+            'heure_debut' => '08:00',
+            'heure_fin' => '18:00'
+        ];
+    }
 }
